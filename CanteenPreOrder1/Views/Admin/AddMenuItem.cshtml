@@ -1,0 +1,103 @@
+@model CanteenPreOrder1.Models.MenuItemViewModel
+@{
+    ViewBag.Title = "Add Menu Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    bool isEdit = Model.ItemID > 0;
+}
+
+<style>
+    .form-page { padding: 40px 0 60px; }
+    .form-card { background:white; border-radius:20px; border:1px solid #E8E0D8; max-width:620px; margin:0 auto; overflow:hidden; }
+    .form-card-header { background:linear-gradient(135deg,#1A1A2E,#0F3460); padding:24px 32px; }
+    .form-card-header h2 { font-family:'Sora',sans-serif; color:white; font-size:1.4rem; font-weight:700; margin:0; }
+    .form-card-body { padding:32px; }
+    .form-group { margin-bottom:20px; }
+    .form-check-area { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#F8F4F0; border-radius:10px; }
+    .form-check-area input[type=checkbox] { width:18px; height:18px; accent-color:#E8521A; cursor:pointer; }
+    .form-check-area label { font-weight:600; font-size:0.9rem; cursor:pointer; margin:0; }
+    .form-actions { display:flex; gap:12px; padding-top:8px; }
+    .validation-error { color:#E74C3C; font-size:0.78rem; margin-top:5px; }
+</style>
+
+<div class="form-page">
+    <div class="container">
+        <a href="@Url.Action("Menu","Admin")" style="color:#E8521A;font-weight:600;font-size:0.88rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;">
+            <i class="fa fa-arrow-left"></i> Back to Menu
+        </a>
+
+        <div class="form-card">
+            <div class="form-card-header">
+                <h2>
+                    <i class="fa @(isEdit?"fa-edit":"fa-plus") me-2" style="color:#F5A623;"></i>
+                    @(isEdit ? "Edit Menu Item" : "Add New Menu Item")
+                </h2>
+            </div>
+            <div class="form-card-body">
+                <form method="post" action="@Url.Action(isEdit ? "EditMenuItem" : "AddMenuItem", "Admin")">
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.ItemID)
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label-custom">Item Name *</label>
+                                @Html.TextBoxFor(m => m.ItemName, new { @class="form-control-custom", placeholder="e.g. Chicken Biryani" })
+                                <div class="validation-error">@Html.ValidationMessageFor(m => m.ItemName)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label-custom">Category *</label>
+                                @Html.DropDownListFor(m => m.CategoryID,
+                                    new SelectList(Model.Categories, "CategoryID", "CategoryName"),
+                                    "-- Select Category --",
+                                    new { @class="form-control-custom" })
+                                <div class="validation-error">@Html.ValidationMessageFor(m => m.CategoryID)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label-custom">Price (Rs.) *</label>
+                                @Html.TextBoxFor(m => m.Price, new { @class="form-control-custom", placeholder="0.00", type="number", step="0.01", min="0" })
+                                <div class="validation-error">@Html.ValidationMessageFor(m => m.Price)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label-custom">Description</label>
+                                @Html.TextAreaFor(m => m.Description, new { @class="form-control-custom", placeholder="Brief description of the item...", rows="3" })
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label-custom">Image URL <span style="color:#AAA;font-weight:400;">(optional)</span></label>
+                                @Html.TextBoxFor(m => m.ImageUrl, new { @class="form-control-custom", placeholder="https://..." })
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check-area">
+                                @Html.CheckBoxFor(m => m.IsAvailable, new { id="availCheck" })
+                                <label for="availCheck">Item is available for ordering</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions mt-4">
+                        <button type="submit" class="btn-primary-custom">
+                            <i class="fa @(isEdit?"fa-save":"fa-plus") me-2"></i>
+                            @(isEdit ? "Save Changes" : "Add Item")
+                        </button>
+                        <a href="@Url.Action("Menu","Admin")" class="btn-outline-custom text-decoration-none" style="display:inline-flex;align-items:center;">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

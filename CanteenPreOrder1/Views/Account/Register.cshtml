@@ -1,0 +1,118 @@
+@model CanteenPreOrder1.Models.RegisterViewModel
+@{
+    ViewBag.Title = "Create Account";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .auth-page {
+        min-height: calc(100vh - 70px);
+        display: flex; align-items: center;
+        background: linear-gradient(135deg, #F8F4F0 0%, #EDE8E2 100%);
+        padding: 40px 0;
+    }
+    .auth-card {
+        background: white; border-radius: 24px;
+        box-shadow: 0 12px 48px rgba(0,0,0,0.1);
+        overflow: hidden; max-width: 480px; width: 100%; margin: 0 auto;
+    }
+    .auth-header {
+        background: linear-gradient(135deg, #1A1A2E, #0F3460);
+        padding: 36px 36px 28px; text-align: center;
+    }
+    .auth-header .icon {
+        width: 64px; height: 64px;
+        background: linear-gradient(135deg, #E8521A, #F5A623);
+        border-radius: 18px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; color: white; margin: 0 auto 16px;
+    }
+    .auth-header h2 { font-family:'Sora',sans-serif; color:white; font-size:1.5rem; font-weight:700; margin-bottom:6px; }
+    .auth-header p { color: rgba(255,255,255,0.5); font-size:0.88rem; }
+    .auth-body { padding: 32px 36px; }
+    .form-group { margin-bottom: 18px; }
+    .input-wrapper { position: relative; }
+    .input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#AAA; font-size:0.9rem; pointer-events:none; }
+    .input-wrapper .form-control-custom { padding-left: 38px; }
+    .btn-submit {
+        width: 100%; background: linear-gradient(135deg,#E8521A,#C43E0C);
+        color: white; border:none; border-radius:12px;
+        padding: 13px; font-size:0.95rem; font-weight:700;
+        cursor: pointer; transition: all 0.3s;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,82,26,0.4); }
+    .auth-footer { text-align:center; padding:20px 36px; border-top:1px solid #F0EBE5; font-size:0.88rem; color:#7F8C8D; }
+    .auth-footer a { color:#E8521A; font-weight:600; text-decoration:none; }
+    .validation-error { color:#E74C3C; font-size:0.78rem; margin-top:5px; }
+    .password-hint { color:#7F8C8D; font-size:0.78rem; margin-top:5px; }
+</style>
+
+<div class="auth-page">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="icon"><i class="fa fa-user-graduate"></i></div>
+                <h2>Create Account</h2>
+                <p>Join the NUML Canteen pre-order system</p>
+            </div>
+
+            <div class="auth-body">
+                <form method="post" action="@Url.Action("Register","Account")">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count > 0)
+                    {
+                        <div class="alert-custom alert-danger-custom mb-3">
+                            @Html.ValidationSummary(true)
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <label class="form-label-custom">Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fa fa-user input-icon"></i>
+                            @Html.TextBoxFor(m => m.FullName, new { @class="form-control-custom", placeholder="Your full name" })
+                        </div>
+                        <div class="validation-error">@Html.ValidationMessageFor(m => m.FullName)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-custom">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa fa-envelope input-icon"></i>
+                            @Html.TextBoxFor(m => m.Email, new { @class="form-control-custom", placeholder="your@email.com" })
+                        </div>
+                        <div class="validation-error">@Html.ValidationMessageFor(m => m.Email)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-custom">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fa fa-lock input-icon"></i>
+                            @Html.PasswordFor(m => m.Password, new { @class="form-control-custom", placeholder="Min. 6 characters" })
+                        </div>
+                        <div class="validation-error">@Html.ValidationMessageFor(m => m.Password)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-custom">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fa fa-lock input-icon"></i>
+                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class="form-control-custom", placeholder="Repeat password" })
+                        </div>
+                        <div class="validation-error">@Html.ValidationMessageFor(m => m.ConfirmPassword)</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fa fa-user-plus me-2"></i>Create My Account
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer">
+                Already have an account? <a href="@Url.Action("Login")">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>

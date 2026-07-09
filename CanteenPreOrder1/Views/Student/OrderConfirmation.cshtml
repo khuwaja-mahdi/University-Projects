@@ -1,0 +1,134 @@
+@model CanteenPreOrder1.Models.Order
+@{
+    ViewBag.Title = "Order Confirmed";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .confirm-page { padding: 40px 0 60px; }
+    .confirm-card {
+        max-width: 580px; margin: 0 auto;
+        background: white; border-radius: 24px;
+        border: 1px solid #E8E0D8;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    .confirm-header {
+        background: linear-gradient(135deg, #2ECC71, #1A8A4A);
+        padding: 40px 36px; text-align: center;
+    }
+    .check-circle {
+        width: 80px; height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%; margin: 0 auto 20px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 36px; color: white;
+        animation: pop 0.5s ease;
+    }
+    @@keyframes pop {
+        0% { transform: scale(0); opacity: 0; }
+        70% { transform: scale(1.15); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .confirm-header h2 { font-family:'Sora',sans-serif; color:white; font-size:1.8rem; font-weight:800; margin-bottom:8px; }
+    .confirm-header p { color:rgba(255,255,255,0.8); }
+
+    .token-box {
+        background: linear-gradient(135deg, #1A1A2E, #0F3460);
+        margin: 24px 36px;
+        border-radius: 16px; padding: 24px;
+        text-align: center;
+    }
+    .token-label { color: rgba(255,255,255,0.6); font-size:0.8rem; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
+    .token-number { font-family:'Sora',sans-serif; font-size:2.5rem; font-weight:800; color:#F5A623; letter-spacing:4px; }
+    .token-hint { color:rgba(255,255,255,0.5); font-size:0.78rem; margin-top:8px; }
+
+    .order-details { padding: 0 36px 28px; }
+    .detail-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #F0EBE5; font-size:0.88rem; }
+    .detail-row:last-child { border-bottom:none; }
+    .detail-row .label { color:#7F8C8D; }
+    .detail-row .value { font-weight:600; color:#1A1A2E; }
+
+    .items-list { background:#F8F4F0; border-radius:12px; padding:16px 20px; margin:20px 36px; }
+    .order-item-row { display:flex; justify-content:space-between; padding:7px 0; font-size:0.86rem; border-bottom:1px dashed #E8E0D8; }
+    .order-item-row:last-child { border-bottom:none; }
+
+    .total-row { display:flex; justify-content:space-between; margin:0 36px 24px; }
+    .total-row .label { font-weight:700; }
+    .total-row .value { font-family:'Sora',sans-serif; font-size:1.4rem; font-weight:800; color:#E8521A; }
+
+    .confirm-actions { padding:0 36px 36px; display:flex; gap:12px; flex-wrap:wrap; }
+    .btn-action {
+        flex:1; padding:12px; border-radius:12px; font-weight:700;
+        font-size:0.88rem; text-align:center; text-decoration:none;
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        transition:all 0.2s; cursor:pointer;
+    }
+    .btn-action-primary { background:linear-gradient(135deg,#E8521A,#C43E0C); color:white; border:none; }
+    .btn-action-primary:hover { color:white; transform:translateY(-1px); box-shadow:0 4px 14px rgba(232,82,26,0.4); }
+    .btn-action-outline { background:white; color:#1A1A2E; border:2px solid #E8E0D8; }
+    .btn-action-outline:hover { border-color:#1A1A2E; color:#1A1A2E; }
+</style>
+
+<div class="confirm-page">
+    <div class="container">
+        <div class="confirm-card animate__animated animate__fadeInUp">
+            <div class="confirm-header">
+                <div class="check-circle"><i class="fa fa-check"></i></div>
+                <h2>Order Placed!</h2>
+                <p>Your order has been received and is being prepared.</p>
+            </div>
+
+            <div class="token-box">
+                <div class="token-label">Your Token Number</div>
+                <div class="token-number">@Model.TokenNumber</div>
+                <div class="token-hint">Show this token at the counter to collect your order</div>
+            </div>
+
+            <div class="items-list">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="order-item-row">
+                        <span>@item.ItemName × @item.Quantity</span>
+                        <span style="font-weight:600;">Rs. @item.Subtotal.ToString("0")</span>
+                    </div>
+                }
+            </div>
+
+            <div class="total-row">
+                <span class="label">Total Amount</span>
+                <span class="value">Rs. @Model.TotalAmount.ToString("0")</span>
+            </div>
+
+            <div class="order-details">
+                <div class="detail-row">
+                    <span class="label"><i class="fa fa-hashtag me-1"></i> Order ID</span>
+                    <span class="value">#@Model.OrderID</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label"><i class="fa fa-clock me-1"></i> Pickup Time</span>
+                    <span class="value">@(string.IsNullOrEmpty(Model.PickupTime) ? "As soon as ready" : Model.PickupTime)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label"><i class="fa fa-circle-dot me-1"></i> Status</span>
+                    <span class="status-badge status-pending">
+                        <i class="fa fa-hourglass-half"></i> @Model.Status
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="label"><i class="fa fa-calendar me-1"></i> Ordered At</span>
+                    <span class="value">@Model.OrderedAt.ToString("hh:mm tt, dd MMM yyyy")</span>
+                </div>
+            </div>
+
+            <div class="confirm-actions">
+                <a href="@Url.Action("OrderHistory","Student")" class="btn-action btn-action-outline">
+                    <i class="fa fa-list"></i> My Orders
+                </a>
+                <a href="@Url.Action("Menu","Student")" class="btn-action btn-action-primary">
+                    <i class="fa fa-plus"></i> Order More
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

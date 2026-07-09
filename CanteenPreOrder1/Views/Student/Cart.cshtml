@@ -1,0 +1,269 @@
+@model CanteenPreOrder1.Models.CartViewModel
+@{
+    ViewBag.Title = "My Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+    .cart-header { background: linear-gradient(135deg,#1A1A2E,#0F3460); padding:36px 0 28px; margin-bottom:32px; }
+    .cart-header h1 { font-family:'Sora',sans-serif; color:white; font-size:2rem; font-weight:800; }
+    .cart-header p { color:rgba(255,255,255,0.6); }
+
+    .cart-table-card { background:white; border-radius:20px; border:1px solid #E8E0D8; overflow:hidden; }
+    .cart-table-card .header {
+        background:#F8F4F0; padding:18px 24px;
+        border-bottom:1px solid #E8E0D8;
+        font-weight:700; font-size:0.9rem; color:#1A1A2E;
+    }
+
+    .cart-row {
+        display:flex; align-items:center; gap:16px;
+        padding:18px 24px; border-bottom:1px solid #F0EBE5;
+        transition: background 0.2s;
+    }
+    .cart-row:last-child { border-bottom:none; }
+    .cart-row:hover { background:#FAFAFA; }
+
+    .item-emoji { font-size:2.2rem; width:52px; text-align:center; flex-shrink:0; }
+    .item-info { flex:1; }
+    .item-info .name { font-weight:700; color:#1A1A2E; font-size:0.95rem; }
+    .item-info .price { color:#7F8C8D; font-size:0.82rem; margin-top:2px; }
+
+    .qty-control {
+        display:flex; align-items:center; gap:0; border:1.5px solid #E8E0D8; border-radius:10px; overflow:hidden;
+    }
+    .qty-btn {
+        background:white; border:none; width:34px; height:34px;
+        display:flex; align-items:center; justify-content:center;
+        cursor:pointer; font-size:1rem; font-weight:700; color:#555;
+        transition:background 0.15s;
+    }
+    .qty-btn:hover { background:#FEF3EE; color:#E8521A; }
+    .qty-num { width:36px; text-align:center; font-weight:700; font-size:0.9rem; }
+
+    .item-subtotal { font-family:'Sora',sans-serif; font-weight:800; font-size:1rem; color:#E8521A; width:80px; text-align:right; }
+
+    .btn-remove { background:none; border:none; color:#DDD; font-size:1.1rem; cursor:pointer; padding:4px 8px; transition:color 0.2s; }
+    .btn-remove:hover { color:#E74C3C; }
+
+    /* Order summary card */
+    .summary-card { background:white; border-radius:20px; border:1px solid #E8E0D8; padding:28px; position:sticky; top:90px; }
+    .summary-card h3 { font-family:'Sora',sans-serif; font-weight:700; font-size:1.1rem; margin-bottom:20px; color:#1A1A2E; }
+    .summary-row { display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.88rem; }
+    .summary-row .label { color:#7F8C8D; }
+    .summary-row .value { font-weight:600; color:#1A1A2E; }
+    .summary-divider { border:none; border-top:2px dashed #E8E0D8; margin:16px 0; }
+    .summary-total { display:flex; justify-content:space-between; }
+    .summary-total .label { font-weight:700; font-size:1rem; color:#1A1A2E; }
+    .summary-total .value { font-family:'Sora',sans-serif; font-size:1.4rem; font-weight:800; color:#E8521A; }
+
+    .pickup-select {
+        width:100%; border:1.5px solid #E8E0D8; border-radius:10px;
+        padding:10px 14px; font-family:'Plus Jakarta Sans',sans-serif;
+        font-size:0.88rem; color:#333; margin:16px 0;
+        appearance:none; background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 14px center;
+    }
+    .pickup-select:focus { outline:none; border-color:#E8521A; }
+
+    .btn-order {
+        width:100%; background:linear-gradient(135deg,#E8521A,#C43E0C);
+        color:white; border:none; border-radius:12px; padding:14px;
+        font-size:0.95rem; font-weight:700; cursor:pointer; transition:all 0.3s;
+        font-family:'Plus Jakarta Sans',sans-serif;
+    }
+    .btn-order:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(232,82,26,0.4); }
+    .btn-order:disabled { background:#CCC; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    .empty-cart { text-align:center; padding:60px 30px; }
+    .empty-cart i { font-size:5rem; color:#E8E0D8; margin-bottom:20px; display:block; }
+    .empty-cart h3 { font-size:1.2rem; color:#7F8C8D; margin-bottom:8px; }
+    .empty-cart p { color:#AAA; font-size:0.88rem; margin-bottom:24px; }
+</style>
+}
+
+<div class="cart-header">
+    <div class="container">
+        <h1><i class="fa fa-shopping-cart me-2" style="color:#F5A623;"></i> My Cart</h1>
+        <p>Review your order before placing it</p>
+    </div>
+</div>
+
+<div class="container">
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-cart">
+            <i class="fa fa-cart-shopping"></i>
+            <h3>Your cart is empty</h3>
+            <p>Browse our menu and add some delicious items!</p>
+            <a href="@Url.Action("Menu","Student")" class="btn-primary-custom text-decoration-none">
+                <i class="fa fa-utensils me-2"></i> Go to Menu
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Cart Items -->
+            <div class="col-lg-7">
+                <div class="cart-table-card">
+                    <div class="header">
+                        <i class="fa fa-list me-2"></i> @Model.Items.Count item(s) in cart
+                    </div>
+                    <div id="cartItemsContainer">
+                        @foreach (var item in Model.Items)
+                        {
+                            string imgUrl;
+                            if (item.ItemName.Contains("Biryani") || item.ItemName.Contains("Rice") || item.ItemName.Contains("Chawal")) {
+                                imgUrl = "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=80&h=80&fit=crop";
+                            } else if (item.ItemName.Contains("Burger") || item.ItemName.Contains("Zinger")) {
+                                imgUrl = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&h=80&fit=crop";
+                            } else if (item.ItemName.Contains("Juice")) {
+                                imgUrl = "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=80&h=80&fit=crop";
+                            } else if (item.ItemName.Contains("Water") || item.ItemName.Contains("Drink")) {
+                                imgUrl = "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=80&h=80&fit=crop";
+                            } else if (item.ItemName.Contains("Samosa") || item.ItemName.Contains("Pakora") || item.ItemName.Contains("Spring")) {
+                                imgUrl = "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=80&h=80&fit=crop";
+                            } else if (item.ItemName.Contains("Sandwich")) {
+                                imgUrl = "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=80&h=80&fit=crop";
+                            } else if (item.ItemName.Contains("Karahi") || item.ItemName.Contains("Nihari") || item.ItemName.Contains("Daal")) {
+                                imgUrl = "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=80&h=80&fit=crop";
+                            } else {
+                                imgUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80&h=80&fit=crop";
+                            }
+                            <div class="cart-row" id="cartRow_@item.CartID">
+                                <div class="item-emoji">
+                                    <img src="@imgUrl" alt="@item.ItemName"
+                                         style="width:52px;height:52px;border-radius:10px;object-fit:cover;"
+                                         onerror="this.style.display='none'" />
+                                </div>
+                                <div class="item-info">
+                                    <div class="name">@item.ItemName</div>
+                                    <div class="price">Rs. @item.Price.ToString("0") each</div>
+                                </div>
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="changeQty(@item.CartID, -1)">−</button>
+                                    <span class="qty-num" id="qty_@item.CartID">@item.Quantity</span>
+                                    <button class="qty-btn" onclick="changeQty(@item.CartID, 1)">+</button>
+                                </div>
+                                <div class="item-subtotal" id="sub_@item.CartID">Rs. @item.Subtotal.ToString("0")</div>
+                                <button class="btn-remove" onclick="removeItem(@item.CartID)" title="Remove">&#x2715;</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a href="@Url.Action("Menu","Student")" style="color:#E8521A;font-size:0.88rem;font-weight:600;text-decoration:none;">
+                        <i class="fa fa-arrow-left me-1"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="col-lg-5">
+                <form method="post" action="@Url.Action("PlaceOrder","Student")">
+                    @Html.AntiForgeryToken()
+                    <div class="summary-card">
+                        <h3><i class="fa fa-receipt me-2" style="color:#E8521A;"></i> Order Summary</h3>
+
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="summary-row">
+                                <span class="label">@item.ItemName × @item.Quantity</span>
+                                <span class="value" id="sumSub_@item.CartID">Rs. @item.Subtotal.ToString("0")</span>
+                            </div>
+                        }
+
+                        <hr class="summary-divider" />
+                        <div class="summary-total">
+                            <span class="label">Total</span>
+                            <span class="value" id="grandTotal">Rs. @Model.Total.ToString("0")</span>
+                        </div>
+
+                        <div style="margin-top:20px;">
+                            <label class="form-label-custom"><i class="fa fa-clock me-1" style="color:#E8521A;"></i> Pickup Time</label>
+                            <select name="pickupTime" class="pickup-select" required>
+                                <option value="">-- Select Pickup Time --</option>
+                                <option value="10:00 AM - 10:15 AM">10:00 AM - 10:15 AM</option>
+                                <option value="11:00 AM - 11:15 AM">11:00 AM - 11:15 AM</option>
+                                <option value="12:00 PM - 12:15 PM">12:00 PM - 12:15 PM (Lunch)</option>
+                                <option value="12:30 PM - 12:45 PM">12:30 PM - 12:45 PM</option>
+                                <option value="01:00 PM - 01:15 PM">01:00 PM - 01:15 PM</option>
+                                <option value="02:00 PM - 02:15 PM">02:00 PM - 02:15 PM</option>
+                                <option value="03:00 PM - 03:15 PM">03:00 PM - 03:15 PM</option>
+                                <option value="04:00 PM - 04:15 PM">04:00 PM - 04:15 PM</option>
+                            </select>
+                        </div>
+
+                        <div style="background:#FEF9EE;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:0.82rem;color:#8B6A1A;">
+                            <i class="fa fa-info-circle me-1"></i>
+                            You'll receive a <strong>token number</strong> after placing your order. Show it at the counter to collect your food.
+                        </div>
+
+                        <button type="submit" class="btn-order">
+                            <i class="fa fa-check-circle me-2"></i> Place Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    var prices = {
+        @foreach (var item in Model.Items) { @:@item.CartID: @item.Price,
+        }
+    };
+    var quantities = {
+        @foreach (var item in Model.Items) { @:@item.CartID: @item.Quantity,
+        }
+    };
+
+    function changeQty(cartId, delta) {
+        var newQty = (quantities[cartId] || 1) + delta;
+        if (newQty < 0) newQty = 0;
+
+        $.ajax({
+            url: '@Url.Action("UpdateCart","Student")',
+            type: 'POST',
+            data: { cartId: cartId, quantity: newQty },
+            success: function () {
+                if (newQty === 0) {
+                    $('#cartRow_' + cartId).fadeOut(300, function() { $(this).remove(); updateTotal(); });
+                } else {
+                    quantities[cartId] = newQty;
+                    $('#qty_' + cartId).text(newQty);
+                    var sub = prices[cartId] * newQty;
+                    $('#sub_' + cartId).text('Rs. ' + Math.round(sub));
+                    $('#sumSub_' + cartId).text('Rs. ' + Math.round(sub));
+                    updateTotal();
+                }
+            }
+        });
+    }
+
+    function removeItem(cartId) {
+        $.ajax({
+            url: '@Url.Action("RemoveFromCart","Student")',
+            type: 'POST',
+            data: { cartId: cartId },
+            success: function () {
+                $('#cartRow_' + cartId).fadeOut(300, function() { $(this).remove(); updateTotal(); });
+                delete quantities[cartId];
+                delete prices[cartId];
+            }
+        });
+    }
+
+    function updateTotal() {
+        var total = 0;
+        for (var id in quantities) {
+            total += (prices[id] || 0) * (quantities[id] || 0);
+        }
+        $('#grandTotal').text('Rs. ' + Math.round(total));
+    }
+</script>
+}

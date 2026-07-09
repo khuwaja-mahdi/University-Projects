@@ -1,0 +1,144 @@
+@model CanteenPreOrder1.Models.Order
+@{
+    ViewBag.Title = "Order Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .detail-page { padding: 40px 0 60px; }
+    .back-link { color:#E8521A; font-weight:600; font-size:0.88rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:24px; }
+
+    .detail-grid { display:grid; grid-template-columns:1fr 300px; gap:24px; }
+    @@media(max-width:768px){ .detail-grid{ grid-template-columns:1fr; } }
+
+    .d-card { background:white; border-radius:20px; border:1px solid #E8E0D8; overflow:hidden; margin-bottom:20px; }
+    .d-card-header { background:#1A1A2E; padding:16px 24px; }
+    .d-card-header h5 { color:white; font-family:'Sora',sans-serif; font-weight:700; margin:0; font-size:0.95rem; }
+    .d-card-body { padding:24px; }
+
+    .info-row { display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid #F0EBE5; font-size:0.88rem; }
+    .info-row:last-child { border-bottom:none; }
+    .info-row .lbl { color:#7F8C8D; }
+    .info-row .val { font-weight:600; }
+
+    .item-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #F0EBE5; }
+    .item-row:last-child { border-bottom:none; }
+
+    .status-panel { background:white; border-radius:20px; border:1px solid #E8E0D8; padding:24px; position:sticky; top:90px; }
+    .status-panel h5 { font-family:'Sora',sans-serif; font-weight:700; margin-bottom:20px; color:#1A1A2E; }
+
+    .status-btn {
+        width:100%; padding:12px; border-radius:10px; border:2px solid #E8E0D8;
+        background:white; font-family:'Plus Jakarta Sans',sans-serif;
+        font-size:0.88rem; font-weight:600; cursor:pointer;
+        margin-bottom:10px; text-align:left; transition:all 0.2s;
+        display:flex; align-items:center; gap:10px;
+    }
+    .status-btn:hover { border-color:#E8521A; color:#E8521A; }
+    .status-btn.active { background:#E8521A; color:white; border-color:#E8521A; }
+    .status-btn.active-preparing { background:#3498DB; color:white; border-color:#3498DB; }
+    .status-btn.active-ready { background:#2ECC71; color:white; border-color:#2ECC71; }
+    .status-btn.active-completed { background:#666; color:white; border-color:#666; }
+
+    .token-display {
+        background:linear-gradient(135deg,#1A1A2E,#0F3460);
+        border-radius:12px; padding:20px; text-align:center; margin-bottom:16px;
+    }
+    .token-display .lbl { color:rgba(255,255,255,0.5); font-size:0.72rem; text-transform:uppercase; letter-spacing:2px; }
+    .token-display .num { font-family:'Sora',sans-serif; font-size:2rem; font-weight:800; color:#F5A623; letter-spacing:3px; }
+</style>
+
+<div class="detail-page">
+    <div class="container">
+        <a href="@Url.Action("Orders","Admin")" class="back-link">
+            <i class="fa fa-arrow-left"></i> Back to All Orders
+        </a>
+
+        <div class="detail-grid">
+            <div>
+                <!-- Student Info -->
+                <div class="d-card">
+                    <div class="d-card-header"><h5><i class="fa fa-user me-2" style="color:#F5A623;"></i> Student Info</h5></div>
+                    <div class="d-card-body">
+                        <div class="info-row"><span class="lbl">Name</span><span class="val">@Model.StudentName</span></div>
+                        <div class="info-row"><span class="lbl">Order ID</span><span class="val">#@Model.OrderID</span></div>
+                        <div class="info-row"><span class="lbl">Token</span><span class="val" style="color:#E8521A;font-family:'Sora';font-size:1.1rem;">@Model.TokenNumber</span></div>
+                        <div class="info-row"><span class="lbl">Pickup Time</span><span class="val">@(string.IsNullOrEmpty(Model.PickupTime)?"ASAP":Model.PickupTime)</span></div>
+                        <div class="info-row"><span class="lbl">Ordered At</span><span class="val">@Model.OrderedAt.ToString("hh:mm tt, dd MMM yyyy")</span></div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="d-card">
+                    <div class="d-card-header"><h5><i class="fa fa-utensils me-2" style="color:#F5A623;"></i> Ordered Items</h5></div>
+                    <div class="d-card-body">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="item-row">
+                                <div>
+                                    <div style="font-weight:700;font-size:0.92rem;">@item.ItemName</div>
+                                    <div style="color:#7F8C8D;font-size:0.8rem;">Qty: @item.Quantity &times; Rs. @item.UnitPrice.ToString("0")</div>
+                                </div>
+                                <div style="font-weight:700;color:#E8521A;">Rs. @item.Subtotal.ToString("0")</div>
+                            </div>
+                        }
+                        <div style="display:flex;justify-content:space-between;padding:14px 0 0;font-weight:800;">
+                            <span>Total</span>
+                            <span style="font-family:'Sora';font-size:1.3rem;color:#E8521A;">Rs. @Model.TotalAmount.ToString("0")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Panel -->
+            <div>
+                <div class="token-display">
+                    <div class="lbl">Token Number</div>
+                    <div class="num">@Model.TokenNumber</div>
+                </div>
+
+                <div class="status-panel">
+                    <h5><i class="fa fa-sliders me-2" style="color:#E8521A;"></i> Update Status</h5>
+
+                    <button onclick="setStatus('Pending')"
+                            class="status-btn @(Model.Status=="Pending"?"active":"")">
+                        ⏳ Pending
+                    </button>
+                    <button onclick="setStatus('Preparing')"
+                            class="status-btn @(Model.Status=="Preparing"?"active-preparing":"")">
+                        🔥 Preparing
+                    </button>
+                    <button onclick="setStatus('Ready')"
+                            class="status-btn @(Model.Status=="Ready"?"active-ready":"")">
+                        ✅ Ready for Pickup
+                    </button>
+                    <button onclick="setStatus('Completed')"
+                            class="status-btn @(Model.Status=="Completed"?"active-completed":"")">
+                        ☑️ Completed
+                    </button>
+
+                    <div style="font-size:0.78rem;color:#7F8C8D;margin-top:10px;text-align:center;">
+                        Current: <strong>@Model.Status</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function setStatus(status) {
+        $.ajax({
+            url: '@Url.Action("UpdateStatus","Admin")',
+            type: 'POST',
+            data: { orderId: @Model.OrderID, status: status },
+            success: function (res) {
+                if (res.success) {
+                    location.reload();
+                }
+            }
+        });
+    }
+</script>
+}

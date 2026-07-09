@@ -1,0 +1,126 @@
+@model List<CanteenPreOrder1.Models.Order>
+@{
+    ViewBag.Title = "Manage Orders";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string filter = ViewBag.StatusFilter as string;
+}
+
+@section Styles {
+<style>
+    .orders-hero { background:linear-gradient(135deg,#1A1A2E,#0F3460); padding:36px 0 28px; margin-bottom:32px; }
+    .orders-hero h1 { font-family:'Sora',sans-serif; color:white; font-size:2rem; font-weight:800; }
+
+    .filter-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; }
+    .filter-btn {
+        padding:8px 18px; border-radius:30px; border:1.5px solid #E8E0D8;
+        background:white; color:#555; font-size:0.82rem; font-weight:600;
+        text-decoration:none; transition:all 0.2s; cursor:pointer;
+    }
+    .filter-btn:hover { border-color:#E8521A; color:#E8521A; }
+    .filter-btn.active { background:#E8521A; color:white; border-color:#E8521A; }
+
+    .status-select {
+        border:1.5px solid #E8E0D8; border-radius:8px; padding:6px 10px;
+        font-size:0.82rem; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; background:white;
+    }
+    .status-select:focus { outline:none; border-color:#E8521A; }
+
+    .order-count { font-size:0.85rem; color:#7F8C8D; margin-bottom:16px; }
+    .order-count strong { color:#1A1A2E; }
+</style>
+}
+
+<div class="orders-hero">
+    <div class="container">
+        <h1><i class="fa fa-receipt me-2" style="color:#F5A623;"></i> Manage Orders</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="filter-bar">
+        <a href="@Url.Action("Orders")" class="filter-btn @(string.IsNullOrEmpty(filter)?"active":"")">All Orders</a>
+        <a href="@Url.Action("Orders",new{status="Pending"})"   class="filter-btn @(filter=="Pending"?"active":"")">⏳ Pending</a>
+        <a href="@Url.Action("Orders",new{status="Preparing"})" class="filter-btn @(filter=="Preparing"?"active":"")">🔥 Preparing</a>
+        <a href="@Url.Action("Orders",new{status="Ready"})"     class="filter-btn @(filter=="Ready"?"active":"")">✅ Ready</a>
+        <a href="@Url.Action("Orders",new{status="Completed"})" class="filter-btn @(filter=="Completed"?"active":"")">☑️ Completed</a>
+    </div>
+
+    <div class="order-count">Showing <strong>@Model.Count</strong> order(s)</div>
+
+    <div class="card-custom p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-custom" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>#ID</th>
+                        <th>Student</th>
+                        <th>Token</th>
+                        <th>Pickup Time</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Ordered At</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="9" style="text-align:center;padding:40px;color:#AAA;font-size:0.9rem;">
+                            <i class="fa fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
+                            No orders found for this filter.
+                        </td></tr>
+                    }
+                    else
+                    {
+                        foreach (var o in Model)
+                        {
+                            <tr id="row_@o.OrderID">
+                                <td><strong>#@o.OrderID</strong></td>
+                                <td>@o.StudentName</td>
+                                <td><span style="font-family:'Sora';font-weight:700;color:#E8521A;">@o.TokenNumber</span></td>
+                                <td style="font-size:0.82rem;color:#555;">@(string.IsNullOrEmpty(o.PickupTime)?"ASAP":o.PickupTime)</td>
+                                <td>—</td>
+                                <td><strong>Rs. @o.TotalAmount.ToString("0")</strong></td>
+                                <td style="font-size:0.78rem;color:#7F8C8D;">@o.OrderedAt.ToString("hh:mm tt dd/MM")</td>
+                                <td>
+                                    <select class="status-select" onchange="updateStatus(@o.OrderID, this.value)">
+                                        <option value="Pending"   @(o.Status=="Pending"?"selected":"")>⏳ Pending</option>
+                                        <option value="Preparing" @(o.Status=="Preparing"?"selected":"")>🔥 Preparing</option>
+                                        <option value="Ready"     @(o.Status=="Ready"?"selected":"")>✅ Ready</option>
+                                        <option value="Completed" @(o.Status=="Completed"?"selected":"")>☑️ Completed</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("OrderDetail",new{id=o.OrderID})"
+                                       style="color:#E8521A;font-weight:600;font-size:0.82rem;text-decoration:none;">
+                                        <i class="fa fa-eye me-1"></i>View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function updateStatus(orderId, status) {
+        $.ajax({
+            url: '@Url.Action("UpdateStatus","Admin")',
+            type: 'POST',
+            data: { orderId: orderId, status: status },
+            success: function (res) {
+                if (res.success) {
+                    var row = $('#row_' + orderId);
+                    row.css('background','#EDFBF4');
+                    setTimeout(function(){ row.css('background',''); }, 1500);
+                }
+            }
+        });
+    }
+</script>
+}

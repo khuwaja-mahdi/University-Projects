@@ -1,0 +1,248 @@
+@model CanteenPreOrder1.Models.DashboardViewModel
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+    .dash-hero { background:linear-gradient(135deg,#1A1A2E,#0F3460); padding:36px 0 28px; margin-bottom:32px; }
+    .dash-hero h1 { font-family:'Sora',sans-serif; color:white; font-size:2rem; font-weight:800; }
+    .dash-hero p { color:rgba(255,255,255,0.6); }
+
+    /* Stat cards */
+    .stat-card {
+        background:white; border-radius:18px; border:1px solid #E8E0D8;
+        padding:24px; display:flex; align-items:center; gap:18px;
+        transition:all 0.25s; height:100%;
+    }
+    .stat-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,0,0,0.1); }
+    .stat-icon {
+        width:56px; height:56px; border-radius:14px;
+        display:flex; align-items:center; justify-content:center;
+        font-size:22px; flex-shrink:0;
+    }
+    .stat-info .label { color:#7F8C8D; font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; font-weight:600; }
+    .stat-info .value { font-family:'Sora',sans-serif; font-size:2rem; font-weight:800; color:#1A1A2E; line-height:1.1; margin-top:4px; }
+    .stat-info .sub { color:#7F8C8D; font-size:0.78rem; margin-top:4px; }
+
+    /* Order pipeline */
+    .pipeline { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:32px; }
+    @@media(max-width:768px){ .pipeline{ grid-template-columns:repeat(2,1fr); } }
+
+    .pipe-card {
+        border-radius:14px; padding:20px 18px; text-align:center; border:2px solid transparent;
+        cursor:pointer; transition:all 0.25s; text-decoration:none; display:block;
+    }
+    .pipe-card:hover { transform:translateY(-2px); }
+    .pipe-card .count { font-family:'Sora',sans-serif; font-size:2.4rem; font-weight:800; display:block; }
+    .pipe-card .name  { font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+
+    .pipe-pending   { background:#FEF9EE; border-color:#F5DEB3; color:#D4A017; }
+    .pipe-preparing { background:#EEF4FF; border-color:#BDD3EE; color:#2980B9; }
+    .pipe-ready     { background:#EDFBF4; border-color:#B2DFCE; color:#1A8A4A; }
+    .pipe-completed { background:#F5F5F5; border-color:#DDD; color:#666; }
+
+    .pipe-pending:hover   { border-color:#D4A017; }
+    .pipe-preparing:hover { border-color:#2980B9; }
+    .pipe-ready:hover     { border-color:#1A8A4A; }
+    .pipe-completed:hover { border-color:#888; }
+
+    /* Recent orders table */
+    .section-title { font-family:'Sora',sans-serif; font-size:1.1rem; font-weight:700; color:#1A1A2E; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+
+    .status-select {
+        border:1.5px solid #E8E0D8; border-radius:8px;
+        padding:5px 10px; font-size:0.82rem; font-family:'Plus Jakarta Sans',sans-serif;
+        color:#333; cursor:pointer; background:white;
+    }
+    .status-select:focus { outline:none; border-color:#E8521A; }
+
+    .revenue-badge {
+        background:linear-gradient(135deg,#E8521A,#F5A623);
+        color:white; border-radius:12px; padding:6px 14px;
+        font-family:'Sora',sans-serif; font-size:0.85rem; font-weight:700;
+        display:inline-block;
+    }
+
+    .quick-links { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+    .ql-btn {
+        background:white; border:1.5px solid #E8E0D8; border-radius:12px;
+        padding:12px 20px; text-decoration:none; color:#1A1A2E;
+        font-weight:600; font-size:0.85rem; display:flex; align-items:center; gap:8px;
+        transition:all 0.2s;
+    }
+    .ql-btn:hover { border-color:#E8521A; color:#E8521A; background:#FEF3EE; }
+    .ql-btn i { color:#E8521A; }
+</style>
+}
+
+<div class="dash-hero">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1><i class="fa fa-gauge me-2" style="color:#F5A623;"></i> Admin Dashboard</h1>
+                <p>Welcome back! Here's what's happening today at the canteen.</p>
+            </div>
+            <div>
+                <span class="revenue-badge">
+                    <i class="fa fa-coins me-1"></i> Today's Revenue: Rs. @Model.TodayRevenue.ToString("0")
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <a href="@Url.Action("Orders","Admin")" class="ql-btn"><i class="fa fa-list"></i> All Orders</a>
+        <a href="@Url.Action("Orders","Admin",new{status="Pending"})" class="ql-btn"><i class="fa fa-hourglass-half"></i> Pending</a>
+        <a href="@Url.Action("Orders","Admin",new{status="Preparing"})" class="ql-btn"><i class="fa fa-fire"></i> Preparing</a>
+        <a href="@Url.Action("Orders","Admin",new{status="Ready"})" class="ql-btn"><i class="fa fa-check-circle"></i> Ready</a>
+        <a href="@Url.Action("Menu","Admin")" class="ql-btn"><i class="fa fa-book-open"></i> Manage Menu</a>
+        <a href="@Url.Action("AddMenuItem","Admin")" class="ql-btn"><i class="fa fa-plus"></i> Add Item</a>
+    </div>
+
+    <!-- Order Pipeline -->
+    <div class="pipeline">
+        <a href="@Url.Action("Orders","Admin",new{status="Pending"})" class="pipe-card pipe-pending">
+            <span class="count">@Model.PendingOrders</span>
+            <span class="name">⏳ Pending</span>
+        </a>
+        <a href="@Url.Action("Orders","Admin",new{status="Preparing"})" class="pipe-card pipe-preparing">
+            <span class="count">@Model.PreparingOrders</span>
+            <span class="name">🔥 Preparing</span>
+        </a>
+        <a href="@Url.Action("Orders","Admin",new{status="Ready"})" class="pipe-card pipe-ready">
+            <span class="count">@Model.ReadyOrders</span>
+            <span class="name">✅ Ready</span>
+        </a>
+        <a href="@Url.Action("Orders","Admin",new{status="Completed"})" class="pipe-card pipe-completed">
+            <span class="count">@Model.CompletedOrders</span>
+            <span class="name">☑️ Completed</span>
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#FEF3EE;color:#E8521A;"><i class="fa fa-receipt"></i></div>
+                <div class="stat-info">
+                    <div class="label">Today's Orders</div>
+                    <div class="value">@Model.TotalOrders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#EDFBF4;color:#2ECC71;"><i class="fa fa-rupee-sign"></i></div>
+                <div class="stat-info">
+                    <div class="label">Revenue</div>
+                    <div class="value" style="font-size:1.4rem;">@Model.TodayRevenue.ToString("0")</div>
+                    <div class="sub">Today (PKR)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#EEF4FF;color:#3498DB;"><i class="fa fa-utensils"></i></div>
+                <div class="stat-info">
+                    <div class="label">Menu Items</div>
+                    <div class="value">@Model.TotalMenuItems</div>
+                    <div class="sub">Active Items</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#F5F0FF;color:#9B59B6;"><i class="fa fa-users"></i></div>
+                <div class="stat-info">
+                    <div class="label">Students</div>
+                    <div class="value">@Model.TotalStudents</div>
+                    <div class="sub">Registered</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card-custom p-0 overflow-hidden">
+        <div class="d-flex align-items-center justify-content-between p-4 pb-3">
+            <div class="section-title"><i class="fa fa-clock" style="color:#E8521A;"></i> Recent Orders</div>
+            <a href="@Url.Action("Orders","Admin")" style="color:#E8521A;font-size:0.85rem;font-weight:600;text-decoration:none;">
+                View All <i class="fa fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table-custom" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Student</th>
+                        <th>Token</th>
+                        <th>Pickup</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentOrders == null || !Model.RecentOrders.Any())
+                    {
+                        <tr><td colspan="7" style="text-align:center;padding:30px;color:#AAA;">No orders today yet</td></tr>
+                    }
+                    else
+                    {
+                        foreach (var o in Model.RecentOrders)
+                        {
+                            string sc;
+                            if (o.Status == "Preparing") { sc = "status-preparing"; }
+                            else if (o.Status == "Ready") { sc = "status-ready"; }
+                            else if (o.Status == "Completed") { sc = "status-completed"; }
+                            else { sc = "status-pending"; }
+                            <tr>
+                                <td><strong>#@o.OrderID</strong></td>
+                                <td>@o.StudentName</td>
+                                <td><span style="font-family:'Sora';font-weight:700;color:#E8521A;">@o.TokenNumber</span></td>
+                                <td style="font-size:0.82rem;">@(string.IsNullOrEmpty(o.PickupTime)?"ASAP":o.PickupTime)</td>
+                                <td><strong>Rs. @o.TotalAmount.ToString("0")</strong></td>
+                                <td>
+                                    <select class="status-select" onchange="updateStatus(@o.OrderID, this.value)">
+                                        <option value="Pending"   @(o.Status=="Pending"?"selected":"")>⏳ Pending</option>
+                                        <option value="Preparing" @(o.Status=="Preparing"?"selected":"")>🔥 Preparing</option>
+                                        <option value="Ready"     @(o.Status=="Ready"?"selected":"")>✅ Ready</option>
+                                        <option value="Completed" @(o.Status=="Completed"?"selected":"")>☑️ Completed</option>
+                                    </select>
+                                </td>
+                                <td><a href="@Url.Action("OrderDetail","Admin",new{id=o.OrderID})" style="color:#E8521A;font-weight:600;font-size:0.82rem;text-decoration:none;">Details</a></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function updateStatus(orderId, status) {
+        $.ajax({
+            url: '@Url.Action("UpdateStatus","Admin")',
+            type: 'POST',
+            data: { orderId: orderId, status: status },
+            success: function (res) {
+                if (res.success) {
+                    // Brief flash green
+                    var sel = $('select[onchange*="updateStatus(' + orderId + '"]');
+                    sel.css('border-color','#2ECC71');
+                    setTimeout(function(){ sel.css('border-color',''); }, 1500);
+                }
+            }
+        });
+    }
+</script>
+}

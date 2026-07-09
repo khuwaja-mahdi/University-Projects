@@ -1,0 +1,292 @@
+@model CanteenPreOrder1.Models.MenuViewModel
+@{
+    ViewBag.Title = "Menu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+    .menu-page { background: #F8F4F0; min-height: 100%; }
+
+    .menu-hero {
+        background: linear-gradient(135deg, #1A1A2E, #0F3460);
+        padding: 36px 0 28px;
+        margin-bottom: 0;
+    }
+    .menu-hero h1 {
+        font-family: 'Sora', sans-serif;
+        color: white; font-size: 2rem; font-weight: 800; margin-bottom: 6px;
+    }
+    .menu-hero p { color: rgba(255,255,255,0.6); font-size: 0.92rem; }
+
+    /* Category filter */
+    .category-bar {
+        background: white;
+        border-bottom: 1px solid #E8E0D8;
+        padding: 16px 0;
+        position: sticky; top: 70px; z-index: 100;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .cat-scroll {
+        display: flex; gap: 10px;
+        overflow-x: auto; padding: 0 4px;
+        scrollbar-width: none;
+    }
+    .cat-scroll::-webkit-scrollbar { display: none; }
+
+    .cat-btn {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 8px 18px;
+        border-radius: 30px;
+        border: 1.5px solid #E8E0D8;
+        background: white;
+        color: #555;
+        font-size: 0.83rem;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .cat-btn:hover { border-color: #E8521A; color: #E8521A; background: #FEF3EE; }
+    .cat-btn.active {
+        background: #E8521A; color: white; border-color: #E8521A;
+    }
+
+    /* Menu grid */
+    .menu-grid { padding: 32px 0; }
+
+    .menu-item-card {
+        background: white;
+        border: 1px solid #E8E0D8;
+        border-radius: 18px;
+        overflow: hidden;
+        transition: all 0.25s;
+        height: 100%;
+        display: flex; flex-direction: column;
+    }
+    .menu-item-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 32px rgba(0,0,0,0.1);
+        border-color: #E8521A;
+    }
+
+    .item-image-area {
+        background: linear-gradient(135deg, #F8F4F0, #EDE8E2);
+        height: 130px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 4rem;
+        position: relative;
+    }
+
+    .category-tag {
+        position: absolute; top: 10px; left: 10px;
+        background: rgba(26,26,46,0.8);
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem; font-weight: 600;
+        padding: 3px 10px; border-radius: 20px;
+        text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .item-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .item-name { font-weight: 700; font-size: 0.95rem; color: #1A1A2E; margin-bottom: 5px; }
+    .item-desc { color: #7F8C8D; font-size: 0.78rem; line-height: 1.5; flex: 1; margin-bottom: 12px; }
+    .item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .item-price {
+        font-family: 'Sora', sans-serif;
+        font-size: 1.15rem; font-weight: 800; color: #E8521A;
+    }
+    .item-price span { font-size: 0.75rem; font-weight: 500; color: #AAA; }
+
+    .btn-add {
+        background: linear-gradient(135deg, #E8521A, #C43E0C);
+        color: white; border: none; border-radius: 10px;
+        padding: 8px 16px; font-size: 0.82rem; font-weight: 700;
+        cursor: pointer; transition: all 0.2s;
+        display: flex; align-items: center; gap: 5px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .btn-add:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(232,82,26,0.4); }
+    .btn-add.added { background: linear-gradient(135deg, #2ECC71, #1A8A4A); }
+
+    /* Cart floating */
+    .cart-float {
+        position: fixed; bottom: 28px; right: 28px; z-index: 500;
+        background: linear-gradient(135deg, #E8521A, #C43E0C);
+        color: white; border-radius: 18px;
+        padding: 14px 22px;
+        display: flex; align-items: center; gap: 10px;
+        text-decoration: none;
+        box-shadow: 0 6px 24px rgba(232,82,26,0.45);
+        font-weight: 700; font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+    .cart-float:hover { transform: translateY(-3px); color: white; box-shadow: 0 10px 32px rgba(232,82,26,0.6); }
+    .cart-float-count {
+        background: white; color: #E8521A;
+        border-radius: 50%; width: 26px; height: 26px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; font-weight: 800;
+    }
+
+    .empty-state {
+        text-align: center; padding: 60px 20px;
+    }
+    .empty-state i { font-size: 4rem; color: #DDD; margin-bottom: 16px; }
+    .empty-state h3 { color: #7F8C8D; font-size: 1.1rem; }
+</style>
+}
+
+<div class="menu-hero">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1><i class="fa fa-bowl-food me-2" style="color:#F5A623;"></i> Canteen Menu</h1>
+                <p>Fresh food prepared daily — order ahead and skip the queue!</p>
+            </div>
+            <a href="@Url.Action("Cart","Student")" class="btn-primary-custom text-decoration-none">
+                <i class="fa fa-shopping-cart me-2"></i> View Cart
+                <span class="cart-badge ms-1" id="cartBadgeTop">@Model.CartCount</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Category Filter -->
+<div class="category-bar">
+    <div class="container">
+        <div class="cat-scroll">
+            <a href="@Url.Action("Menu", new { categoryId = 0 })"
+               class="cat-btn @(Model.SelectedCategory == 0 ? "active" : "")">
+                <i class="fa fa-th-large"></i> All Items
+            </a>
+            @foreach (var cat in Model.Categories)
+            {
+                <a href="@Url.Action("Menu", new { categoryId = cat.CategoryID })"
+                   class="cat-btn @(Model.SelectedCategory == cat.CategoryID ? "active" : "")">
+                    <i class="fa @cat.IconClass"></i> @cat.CategoryName
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Menu Grid -->
+<div class="menu-grid">
+    <div class="container">
+        @if (!Model.MenuItems.Any())
+        {
+            <div class="empty-state">
+                <i class="fa fa-utensils"></i>
+                <h3>No items available in this category</h3>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var item in Model.MenuItems)
+                {
+                    string imgUrl;
+                    if (item.CategoryName.Contains("Biryani") || item.CategoryName.Contains("Rice") || item.ItemName.Contains("Biryani") || item.ItemName.Contains("Chawal")) {
+                        imgUrl = "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Beef Biryani")) {
+                        imgUrl = "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=300&h=200&fit=crop";
+                    } else if (item.CategoryName.Contains("Burger") || item.ItemName.Contains("Burger") || item.ItemName.Contains("Zinger")) {
+                        imgUrl = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Juice")) {
+                        imgUrl = "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Water")) {
+                        imgUrl = "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&h=200&fit=crop";
+                    } else if (item.CategoryName.Contains("Drink") || item.ItemName.Contains("Drink")) {
+                        imgUrl = "https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Samosa")) {
+                        imgUrl = "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Pakora")) {
+                        imgUrl = "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&h=200&fit=crop";
+                    } else if (item.CategoryName.Contains("Snack") || item.ItemName.Contains("Spring")) {
+                        imgUrl = "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Karahi")) {
+                        imgUrl = "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Nihari")) {
+                        imgUrl = "https://images.unsplash.com/photo-1574653853027-5382a3d23a15?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Daal") || item.ItemName.Contains("Chawal")) {
+                        imgUrl = "https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=300&h=200&fit=crop";
+                    } else if (item.CategoryName.Contains("Desi")) {
+                        imgUrl = "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&h=200&fit=crop";
+                    } else if (item.ItemName.Contains("Sandwich") || item.CategoryName.Contains("Sand")) {
+                        imgUrl = "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&h=200&fit=crop";
+                    } else {
+                        imgUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop";
+                    }
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="menu-item-card">
+                            <div class="item-image-area" style="padding:0;height:150px;overflow:hidden;border-radius:18px 18px 0 0;">
+                                <img src="@imgUrl" alt="@item.ItemName"
+                                     style="width:100%;height:100%;object-fit:cover;"
+                                     onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#F8F4F0,#EDE8E2)';this.parentElement.innerHTML+='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:3rem;\'>&#127869;</div>';" />
+                                <div class="category-tag">@item.CategoryName</div>
+                            </div>
+                            <div class="item-body">
+                                <div class="item-name">@item.ItemName</div>
+                                <div class="item-desc">@(string.IsNullOrEmpty(item.Description) ? "Freshly prepared canteen item" : item.Description)</div>
+                                <div class="item-footer">
+                                    <div class="item-price"><span>Rs.</span> @item.Price.ToString("0")</div>
+                                    <button class="btn-add" onclick="addToCart(@item.ItemID, this)">
+                                        <i class="fa fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Floating Cart -->
+@if (Model.CartCount > 0)
+{
+    <a href="@Url.Action("Cart","Student")" class="cart-float" id="cartFloat">
+        <i class="fa fa-shopping-cart"></i>
+        View Cart
+        <span class="cart-float-count" id="cartFloatCount">@Model.CartCount</span>
+    </a>
+}
+
+@section Scripts {
+<script>
+    var cartCount = @Model.CartCount;
+
+    function addToCart(itemId, btn) {
+        $.ajax({
+            url: '@Url.Action("AddToCart","Student")',
+            type: 'POST',
+            data: { itemId: itemId },
+            success: function (res) {
+                if (res.success) {
+                    cartCount = res.cartCount;
+                    // Update all badges
+                    $('#cartBadgeTop, #cartCountBadge').text(cartCount);
+                    $('#cartFloatCount').text(cartCount);
+
+                    // Show/hide float
+                    if (cartCount > 0 && !$('#cartFloat').length) {
+                        $('body').append('<a href="@Url.Action("Cart","Student")" class="cart-float" id="cartFloat"><i class="fa fa-shopping-cart"></i> View Cart <span class="cart-float-count" id="cartFloatCount">' + cartCount + '</span></a>');
+                    }
+
+                    // Animate button
+                    var original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa fa-check"></i> Added!';
+                    btn.classList.add('added');
+                    setTimeout(function () {
+                        btn.innerHTML = original;
+                        btn.classList.remove('added');
+                    }, 1500);
+                }
+            }
+        });
+    }
+</script>
+}

@@ -1,0 +1,151 @@
+@model CanteenPreOrder1.Models.LoginViewModel
+@{
+    ViewBag.Title = "Sign In";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .auth-page {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #F8F4F0 0%, #EDE8E2 100%);
+        padding: 40px 0;
+    }
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 12px 48px rgba(0,0,0,0.1);
+        overflow: hidden;
+        max-width: 440px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .auth-header {
+        background: linear-gradient(135deg, #1A1A2E, #16213E);
+        padding: 36px 36px 32px;
+        text-align: center;
+    }
+    .auth-header .icon {
+        width: 64px; height: 64px;
+        background: linear-gradient(135deg, #E8521A, #F5A623);
+        border-radius: 18px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; color: white;
+        margin: 0 auto 16px;
+    }
+    .auth-header h2 {
+        font-family: 'Sora', sans-serif;
+        color: white; font-size: 1.5rem; font-weight: 700; margin-bottom: 6px;
+    }
+    .auth-header p { color: rgba(255,255,255,0.5); font-size: 0.88rem; }
+
+    .auth-body { padding: 36px; }
+
+    .form-group { margin-bottom: 20px; }
+
+    .input-wrapper {
+        position: relative;
+    }
+    .input-icon {
+        position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+        color: #AAA; font-size: 0.9rem; pointer-events: none;
+    }
+    .input-wrapper .form-control-custom { padding-left: 38px; }
+
+    .btn-submit {
+        width: 100%;
+        background: linear-gradient(135deg, #E8521A, #C43E0C);
+        color: white; border: none; border-radius: 12px;
+        padding: 13px; font-size: 0.95rem; font-weight: 700;
+        cursor: pointer; transition: all 0.3s;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .btn-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(232,82,26,0.4);
+    }
+
+    .auth-footer {
+        text-align: center; padding: 20px 36px;
+        border-top: 1px solid #F0EBE5;
+        font-size: 0.88rem; color: #7F8C8D;
+    }
+    .auth-footer a { color: #E8521A; font-weight: 600; text-decoration: none; }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .divider { border-color: #F0EBE5; }
+
+    .admin-hint {
+        background: #FEF9EE; border: 1px solid #F5DEB3;
+        border-radius: 10px; padding: 12px 16px;
+        font-size: 0.82rem; color: #8B6A1A; margin-bottom: 20px;
+    }
+    .admin-hint strong { color: #6A4E10; }
+
+    .validation-error {
+        color: #E74C3C; font-size: 0.78rem; margin-top: 5px;
+        display: flex; align-items: center; gap: 4px;
+    }
+</style>
+
+<div class="auth-page">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="icon"><i class="fa fa-bowl-food"></i></div>
+                <h2>Welcome Back</h2>
+                <p>Sign in to your canteen account</p>
+            </div>
+
+            <div class="auth-body">
+                
+
+                <form method="post" action="@Url.Action("Login","Account")">
+                    @Html.AntiForgeryToken()
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert-custom alert-danger-custom mb-3">
+                            <i class="fa fa-exclamation-circle me-2"></i>
+                            @Html.ValidationSummary(true, "", new { @class = "" })
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <label class="form-label-custom">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fa fa-envelope input-icon"></i>
+                            @Html.TextBoxFor(m => m.Email, new {
+                                @class = "form-control-custom",
+                                placeholder = "your@email.com",
+                                autocomplete = "email"
+                            })
+                        </div>
+                        <div class="validation-error">@Html.ValidationMessageFor(m => m.Email)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label-custom">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fa fa-lock input-icon"></i>
+                            @Html.PasswordFor(m => m.Password, new {
+                                @class = "form-control-custom",
+                                placeholder = "Enter your password"
+                            })
+                        </div>
+                        <div class="validation-error">@Html.ValidationMessageFor(m => m.Password)</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fa fa-sign-in-alt me-2"></i>Sign In
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="@Url.Action("Register")">Create one here</a>
+            </div>
+        </div>
+    </div>
+</div>

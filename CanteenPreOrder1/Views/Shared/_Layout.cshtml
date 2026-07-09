@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - NUMl Canteen</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <!-- Animate.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary:     #E8521A;
+            --primary-dark:#C43E0C;
+            --secondary:   #1A1A2E;
+            --accent:      #F5A623;
+            --success:     #2ECC71;
+            --warning:     #F39C12;
+            --danger:      #E74C3C;
+            --info:        #3498DB;
+            --light-bg:    #F8F4F0;
+            --card-bg:     #FFFFFF;
+            --text-dark:   #1A1A2E;
+            --text-muted:  #7F8C8D;
+            --border:      #E8E0D8;
+            --navbar-h:    70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* ---- NAVBAR ---- */
+        .navbar-custom {
+            background: var(--secondary);
+            height: var(--navbar-h);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand-custom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .brand-text {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            line-height: 1.1;
+        }
+
+        .brand-text span {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-link-custom {
+            color: rgba(255,255,255,0.75) !important;
+            font-weight: 500;
+            font-size: 0.88rem;
+            padding: 8px 14px !important;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: white !important;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .cart-badge {
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 4px;
+            font-weight: 700;
+        }
+
+        .btn-logout {
+            background: rgba(232,82,26,0.15);
+            color: var(--primary) !important;
+            border: 1px solid rgba(232,82,26,0.3);
+            font-size: 0.85rem;
+            padding: 6px 16px !important;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .user-chip {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 5px 14px;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .user-chip i { color: var(--accent); }
+
+        /* ---- MAIN CONTENT ---- */
+        .main-content { padding: 30px 0 60px; min-height: calc(100vh - var(--navbar-h) - 60px); }
+
+        /* ---- CARDS ---- */
+        .card-custom {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s, transform 0.2s;
+            overflow: hidden;
+        }
+        .card-custom:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+        /* ---- BUTTONS ---- */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-primary-custom:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,82,26,0.4); color: white; }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 9px 22px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-outline-custom:hover { background: var(--primary); color: white; }
+
+        /* ---- STATUS BADGES ---- */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-pending   { background: #FEF9EE; color: #D4A017; border: 1px solid #F5DEB3; }
+        .status-preparing { background: #EEF4FF; color: #2980B9; border: 1px solid #BDD3EE; }
+        .status-ready     { background: #EDFBF4; color: #1A8A4A; border: 1px solid #B2DFCE; }
+        .status-completed { background: #F0F0F0; color: #555;    border: 1px solid #CCC; }
+
+        /* ---- PAGE HEADER ---- */
+        .page-header {
+            margin-bottom: 28px;
+        }
+        .page-header h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .page-header p { color: var(--text-muted); font-size: 0.92rem; margin-top: 4px; }
+
+        /* ---- ALERTS ---- */
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            padding: 14px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .alert-success-custom { background: #EDFBF4; color: #1A8A4A; border-left: 4px solid var(--success); }
+        .alert-danger-custom  { background: #FDECEA; color: #C0392B; border-left: 4px solid var(--danger); }
+
+        /* ---- FORM CONTROLS ---- */
+        .form-control-custom {
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(232,82,26,0.12);
+        }
+
+        .form-label-custom {
+            font-weight: 600; font-size: 0.85rem;
+            color: var(--text-dark); margin-bottom: 6px;
+            display: block;
+        }
+
+        /* ---- TABLES ---- */
+        .table-custom {
+            width: 100%; border-collapse: collapse;
+        }
+        .table-custom th {
+            background: var(--secondary); color: white;
+            padding: 12px 16px; font-size: 0.82rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .table-custom th:first-child { border-radius: 8px 0 0 0; }
+        .table-custom th:last-child  { border-radius: 0 8px 0 0; }
+        .table-custom td {
+            padding: 13px 16px; border-bottom: 1px solid var(--border);
+            font-size: 0.88rem; vertical-align: middle;
+        }
+        .table-custom tr:hover td { background: #FAFAFA; }
+        .table-custom tr:last-child td { border-bottom: none; }
+
+        /* ---- FOOTER ---- */
+        .footer-custom {
+            background: var(--secondary);
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 18px;
+            font-size: 0.8rem;
+        }
+        .footer-custom strong { color: var(--primary); }
+
+        /* ---- SCROLLBAR ---- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        @@media (max-width: 768px) {
+            .main-content { padding: 20px 0 40px; }
+            .page-header h1 { font-size: 1.4rem; }
+        }
+    </style>
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar-custom d-flex align-items-center px-3 px-md-4">
+    <a href="@Url.Action("Index","Home")" class="navbar-brand-custom me-auto">
+        <div class="brand-icon"><i class="fa-solid fa-bowl-food"></i></div>
+        <div class="brand-text">
+            NUML Canteen
+            <span>Pre-Order System</span>
+        </div>
+    </a>
+
+    @if (Session["UserID"] != null)
+    {
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            @if (Session["UserRole"] != null && Session["UserRole"].ToString() == "Student")
+            {
+                <a href="@Url.Action("Menu","Student")"
+                   class="nav-link-custom @(ViewContext.RouteData.Values["action"] != null && ViewContext.RouteData.Values["action"].ToString()=="Menu"?"active":"")">
+                    <i class="fa fa-utensils me-1"></i> Menu
+                </a>
+                <a href="@Url.Action("Cart","Student")" class="nav-link-custom position-relative">
+                    <i class="fa fa-shopping-cart me-1"></i> Cart
+                    <span class="cart-badge" id="cartCountBadge">@(Session["CartCount"] != null ? Session["CartCount"] : 0)</span>
+                </a>
+                <a href="@Url.Action("OrderHistory","Student")" class="nav-link-custom">
+                    <i class="fa fa-list me-1"></i> My Orders
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Dashboard","Admin")" class="nav-link-custom">
+                    <i class="fa fa-gauge me-1"></i> Dashboard
+                </a>
+                <a href="@Url.Action("Orders","Admin")" class="nav-link-custom">
+                    <i class="fa fa-receipt me-1"></i> Orders
+                </a>
+                <a href="@Url.Action("Menu","Admin")" class="nav-link-custom">
+                    <i class="fa fa-book me-1"></i> Menu
+                </a>
+            }
+
+            <div class="user-chip">
+                <i class="fa fa-user-circle"></i>
+                @(Session["UserName"] != null ? Session["UserName"].ToString().Split(' ')[0] : "")
+            </div>
+
+            <a href="@Url.Action("Logout","Account")" class="nav-link-custom btn-logout">
+                <i class="fa fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Login","Account")" class="nav-link-custom">Sign In</a>
+            <a href="@Url.Action("Register","Account")" class="btn-primary-custom text-decoration-none"
+               style="padding:8px 18px;font-size:0.85rem;border-radius:8px;">Register</a>
+        </div>
+    }
+</nav>
+
+<!-- ALERTS -->
+<div class="container-fluid px-3 px-md-4 mt-3">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-custom alert-success-custom animate__animated animate__fadeInDown">
+            <i class="fa fa-check-circle me-2"></i>@TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-custom alert-danger-custom animate__animated animate__fadeInDown">
+            <i class="fa fa-exclamation-circle me-2"></i>@TempData["Error"]
+        </div>
+    }
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    @RenderBody()
+</div>
+
+<!-- FOOTER -->
+<footer class="footer-custom">
+    &copy; @DateTime.Now.Year <strong>NUML Canteen Pre-Order System</strong> &mdash;
+    Developed by Khuwaja Muhammad Mahdi (609) &amp; Muhammad Ahmad Janjua (623) &bull; BSCS IV-A
+</footer>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Auto-dismiss alerts
+    setTimeout(function () {
+        document.querySelectorAll('.alert-custom').forEach(function (el) {
+            el.style.transition = 'opacity 0.5s';
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 500);
+        });
+    }, 4000);
+</script>
+
+@RenderSection("Scripts", required: false)
+</body>
+</html>

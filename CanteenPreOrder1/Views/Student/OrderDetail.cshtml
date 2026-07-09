@@ -1,0 +1,124 @@
+@model CanteenPreOrder1.Models.Order
+@{
+    ViewBag.Title = "Order Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .detail-page { padding: 40px 0 60px; }
+    .back-link { color:#E8521A; font-weight:600; font-size:0.88rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:24px; }
+    .back-link:hover { color:#C43E0C; }
+
+    .detail-grid { display:grid; grid-template-columns:1fr 320px; gap:24px; }
+    @@media(max-width:768px){ .detail-grid{ grid-template-columns:1fr; } }
+
+    .detail-card { background:white; border-radius:20px; border:1px solid #E8E0D8; overflow:hidden; }
+    .detail-card-header { background:#1A1A2E; padding:20px 24px; }
+    .detail-card-header h5 { color:white; font-family:'Sora',sans-serif; font-weight:700; margin:0; }
+    .detail-card-body { padding:24px; }
+
+    .info-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #F0EBE5; font-size:0.88rem; }
+    .info-row:last-child { border-bottom:none; }
+    .info-row .lbl { color:#7F8C8D; }
+    .info-row .val { font-weight:600; color:#1A1A2E; }
+
+    .item-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #F0EBE5; }
+    .item-row:last-child { border-bottom:none; }
+    .item-name { font-weight:600; font-size:0.9rem; color:#1A1A2E; }
+    .item-qty  { color:#7F8C8D; font-size:0.82rem; }
+    .item-price { font-weight:700; color:#E8521A; }
+
+    .total-section { background:#F8F4F0; border-radius:12px; padding:16px 20px; margin-top:16px; }
+    .total-line { display:flex; justify-content:space-between; font-size:0.88rem; margin-bottom:8px; }
+    .total-line.grand { margin-top:10px; padding-top:10px; border-top:2px dashed #E8E0D8; }
+    .total-line.grand .lbl { font-weight:700; font-size:1rem; }
+    .total-line.grand .val { font-family:'Sora',sans-serif; font-size:1.3rem; font-weight:800; color:#E8521A; }
+
+    .token-big { background:linear-gradient(135deg,#1A1A2E,#0F3460); border-radius:16px; padding:28px; text-align:center; margin-bottom:16px; }
+    .token-big .lbl { color:rgba(255,255,255,0.5); font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; margin-bottom:10px; }
+    .token-big .num { font-family:'Sora',sans-serif; font-size:2.2rem; font-weight:800; color:#F5A623; letter-spacing:4px; }
+    .token-big .hint { color:rgba(255,255,255,0.4); font-size:0.75rem; margin-top:8px; }
+</style>
+
+<div class="detail-page">
+    <div class="container">
+        <a href="@Url.Action("OrderHistory","Student")" class="back-link">
+            <i class="fa fa-arrow-left"></i> Back to My Orders
+        </a>
+
+        <div class="detail-grid">
+            <!-- Left: Items & Info -->
+            <div>
+                <div class="detail-card mb-4">
+                    <div class="detail-card-header">
+                        <h5><i class="fa fa-receipt me-2" style="color:#F5A623;"></i> Order #@Model.OrderID</h5>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="info-row"><span class="lbl">Status</span>
+                            <span class="val">
+                                @{
+                                    string sc = "status-pending", si = "fa-hourglass-half";
+                                    if (Model.Status == "Preparing") { sc = "status-preparing"; si = "fa-fire"; }
+                                    else if (Model.Status == "Ready") { sc = "status-ready"; si = "fa-check-circle"; }
+                                    else if (Model.Status == "Completed") { sc = "status-completed"; si = "fa-check-double"; }
+                                }
+                                <span class="status-badge @sc"><i class="fa @si"></i> @Model.Status</span>
+                            </span>
+                        </div>
+                        <div class="info-row"><span class="lbl">Pickup Time</span><span class="val">@(string.IsNullOrEmpty(Model.PickupTime)?"ASAP":Model.PickupTime)</span></div>
+                        <div class="info-row"><span class="lbl">Order Placed</span><span class="val">@Model.OrderedAt.ToString("hh:mm tt, dd MMM yyyy")</span></div>
+                        <div class="info-row"><span class="lbl">Last Updated</span><span class="val">@Model.UpdatedAt.ToString("hh:mm tt, dd MMM yyyy")</span></div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-header"><h5><i class="fa fa-utensils me-2" style="color:#F5A623;"></i> Items Ordered</h5></div>
+                    <div class="detail-card-body">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="item-row">
+                                <div>
+                                    <div class="item-name">@item.ItemName</div>
+                                    <div class="item-qty">Qty: @item.Quantity &times; Rs. @item.UnitPrice.ToString("0")</div>
+                                </div>
+                                <div class="item-price">Rs. @item.Subtotal.ToString("0")</div>
+                            </div>
+                        }
+                        <div class="total-section">
+                            <div class="total-line grand">
+                                <span class="lbl">Total Amount</span>
+                                <span class="val">Rs. @Model.TotalAmount.ToString("0")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Token & actions -->
+            <div>
+                <div class="token-big">
+                    <div class="lbl">Your Token Number</div>
+                    <div class="num">@Model.TokenNumber</div>
+                    <div class="hint">Show at the counter to collect</div>
+                </div>
+
+                @if (Model.Status == "Ready")
+                {
+                    <div class="alert-custom" style="background:#EDFBF4;border-left:4px solid #2ECC71;padding:14px 18px;border-radius:12px;font-weight:600;color:#1A8A4A;margin-bottom:16px;">
+                        <i class="fa fa-check-circle me-2"></i> Your order is ready! Come collect it now.
+                    </div>
+                }
+                else if (Model.Status == "Preparing")
+                {
+                    <div class="alert-custom" style="background:#EEF4FF;border-left:4px solid #3498DB;padding:14px 18px;border-radius:12px;font-weight:600;color:#2980B9;margin-bottom:16px;">
+                        <i class="fa fa-fire me-2"></i> Your food is being prepared. Won't be long!
+                    </div>
+                }
+
+                <a href="@Url.Action("Menu","Student")" class="btn-primary-custom text-decoration-none d-block text-center mt-3">
+                    <i class="fa fa-plus me-2"></i> Order More Food
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,114 @@
+@model List<CanteenPreOrder1.Models.MenuItem>
+@{
+    ViewBag.Title = "Manage Menu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+<style>
+    .menu-hero { background:linear-gradient(135deg,#1A1A2E,#0F3460); padding:36px 0 28px; margin-bottom:32px; }
+    .menu-hero h1 { font-family:'Sora',sans-serif; color:white; font-size:2rem; font-weight:800; }
+
+    .avail-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; }
+    .avail-yes { background:#EDFBF4; color:#1A8A4A; }
+    .avail-no  { background:#FDECEA; color:#C0392B; }
+
+    .btn-edit   { background:#EEF4FF; color:#2980B9; border:none; border-radius:8px; padding:6px 14px; font-size:0.8rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+    .btn-edit:hover { background:#2980B9; color:white; }
+    .btn-delete { background:#FDECEA; color:#E74C3C; border:none; border-radius:8px; padding:6px 14px; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .btn-delete:hover { background:#E74C3C; color:white; }
+
+    .price-cell { font-family:'Sora',sans-serif; font-weight:700; color:#E8521A; }
+</style>
+}
+
+<div class="menu-hero">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <h1><i class="fa fa-book-open me-2" style="color:#F5A623;"></i> Manage Menu</h1>
+            <a href="@Url.Action("AddMenuItem")" class="btn-primary-custom text-decoration-none">
+                <i class="fa fa-plus me-2"></i> Add New Item
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card-custom p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table-custom" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Available</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" style="text-align:center;padding:40px;color:#AAA;">No menu items. Add some!</td></tr>
+                    }
+                    else
+                    {
+                        int i = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr id="itemRow_@item.ItemID">
+                                <td style="color:#AAA;font-size:0.82rem;">@(i++)</td>
+                                <td><strong>@item.ItemName</strong></td>
+                                <td>
+                                    <span style="background:#F0EBE5;padding:3px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;color:#555;">
+                                        @item.CategoryName
+                                    </span>
+                                </td>
+                                <td style="font-size:0.82rem;color:#7F8C8D;max-width:200px;">
+                                    @(string.IsNullOrEmpty(item.Description) ? "—" : (item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description))
+                                </td>
+                                <td class="price-cell">Rs. @item.Price.ToString("0")</td>
+                                <td>
+                                    <span class="avail-badge @(item.IsAvailable?"avail-yes":"avail-no")">
+                                        <i class="fa @(item.IsAvailable?"fa-check":"fa-times")"></i>
+                                        @(item.IsAvailable ? "Yes" : "No")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="@Url.Action("EditMenuItem",new{id=item.ItemID})" class="btn-edit">
+                                            <i class="fa fa-edit me-1"></i>Edit
+                                        </a>
+                                        <button class="btn-delete" onclick="deleteItem(@item.ItemID, '@item.ItemName')">
+                                            <i class="fa fa-trash me-1"></i>Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function deleteItem(id, name) {
+        if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+        $.ajax({
+            url: '@Url.Action("DeleteMenuItem","Admin")',
+            type: 'POST',
+            data: { id: id },
+            success: function (res) {
+                if (res.success) {
+                    $('#itemRow_' + id).fadeOut(400, function(){ $(this).remove(); });
+                }
+            }
+        });
+    }
+</script>
+}

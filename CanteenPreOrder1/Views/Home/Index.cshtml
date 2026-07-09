@@ -1,0 +1,398 @@
+@{
+    ViewBag.Title = "Welcome";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .hero {
+        min-height: calc(100vh - 70px);
+        background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        padding: 60px 0;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(232,82,26,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(245,166,35,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(232,82,26,0.15);
+        border: 1px solid rgba(232,82,26,0.3);
+        color: #F5A623;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+    }
+
+    .hero h1 {
+        font-family: 'Sora', sans-serif;
+        font-size: clamp(2.2rem, 5vw, 3.8rem);
+        font-weight: 800;
+        color: white;
+        line-height: 1.15;
+        margin-bottom: 20px;
+    }
+
+    .hero h1 .highlight {
+        background: linear-gradient(135deg, #E8521A, #F5A623);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero p {
+        color: rgba(255,255,255,0.65);
+        font-size: 1.05rem;
+        line-height: 1.7;
+        max-width: 500px;
+        margin-bottom: 36px;
+    }
+
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .btn-hero-primary {
+        background: linear-gradient(135deg, #E8521A, #C43E0C);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+        box-shadow: 0 4px 20px rgba(232,82,26,0.35);
+    }
+    .btn-hero-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(232,82,26,0.5);
+        color: white;
+    }
+
+    .btn-hero-outline {
+        background: transparent;
+        color: white;
+        padding: 13px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid rgba(255,255,255,0.3);
+        transition: all 0.3s;
+    }
+    .btn-hero-outline:hover {
+        border-color: white;
+        background: rgba(255,255,255,0.08);
+        color: white;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 32px;
+        margin-top: 48px;
+        flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num {
+        font-family: 'Sora', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+        display: block;
+    }
+    .hero-stat .lbl {
+        color: rgba(255,255,255,0.5);
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Visual element */
+    .hero-visual {
+        position: relative;
+        z-index: 2;
+    }
+
+    .food-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .food-card-hero {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 24px 20px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .food-card-hero:hover {
+        background: rgba(255,255,255,0.1);
+        transform: translateY(-4px);
+    }
+    .food-card-hero .emoji { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+    .food-card-hero .name { color: rgba(255,255,255,0.85); font-size: 0.82rem; font-weight: 600; }
+    .food-card-hero .price { color: var(--accent, #F5A623); font-size: 0.9rem; font-weight: 700; margin-top: 4px; }
+
+    .food-card-hero.featured {
+        grid-column: span 2;
+        background: rgba(232,82,26,0.15);
+        border-color: rgba(232,82,26,0.3);
+    }
+
+    /* Features section */
+    .features-section { padding: 80px 0; background: #F8F4F0; }
+    .features-section h2 {
+        font-family: 'Sora', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #1A1A2E;
+    }
+    .features-section .subtitle {
+        color: #7F8C8D; text-align: center;
+        font-size: 0.95rem; margin-bottom: 50px;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px 28px;
+        text-align: center;
+        border: 1px solid #E8E0D8;
+        transition: all 0.3s;
+        height: 100%;
+    }
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+    }
+    .feature-icon {
+        width: 64px; height: 64px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px;
+        margin: 0 auto 20px;
+    }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: #1A1A2E; }
+    .feature-card p  { color: #7F8C8D; font-size: 0.88rem; line-height: 1.6; }
+
+    /* How it works */
+    .how-section { padding: 80px 0; background: #1A1A2E; }
+    .how-section h2 {
+        font-family: 'Sora', sans-serif;
+        font-size: 2rem; font-weight: 700;
+        text-align: center; color: white; margin-bottom: 8px;
+    }
+    .how-section .subtitle { color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 50px; }
+
+    .step-card {
+        text-align: center; padding: 30px 20px; position: relative;
+    }
+    .step-num {
+        width: 56px; height: 56px;
+        background: linear-gradient(135deg, #E8521A, #F5A623);
+        color: white;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Sora', sans-serif;
+        font-weight: 800; font-size: 1.3rem;
+        margin: 0 auto 16px;
+    }
+    .step-card h4 { color: white; font-weight: 700; margin-bottom: 8px; }
+    .step-card p  { color: rgba(255,255,255,0.5); font-size: 0.88rem; line-height: 1.6; }
+    .step-arrow {
+        position: absolute; right: -20px; top: 35px;
+        color: rgba(232,82,26,0.4); font-size: 1.5rem;
+    }
+</style>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 hero-content animate__animated animate__fadeInLeft">
+                <div class="hero-badge">
+                    <i class="fa fa-bolt"></i> Skip the Queue
+                </div>
+                <h1>
+                    Order Food <br>
+                    <span class="highlight">Before You Arrive</span>
+                </h1>
+                <p>
+                    No more standing in long lines during short breaks.
+                    Browse the menu, place your order, get your token,
+                    and pick up your meal when it's ready.
+                </p>
+                <div class="hero-btns">
+                    <a href="@Url.Action("Register","Account")" class="btn-hero-primary">
+                        <i class="fa fa-user-plus"></i> Get Started Free
+                    </a>
+                    <a href="@Url.Action("Login","Account")" class="btn-hero-outline">
+                        <i class="fa fa-sign-in-alt"></i> Sign In
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="num">0</span>
+                        <span class="lbl">Queue Wait</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="num">100%</span>
+                        <span class="lbl">Digital Orders</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="num">Real-time</span>
+                        <span class="lbl">Status Updates</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-visual animate__animated animate__fadeInRight">
+                <div class="food-grid">
+                    <div class="food-card-hero featured" style="padding:0;overflow:hidden;position:relative;">
+                        <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&h=160&fit=crop" style="width:100%;height:120px;object-fit:cover;" alt="Biryani"/>
+                        <div style="padding:12px 16px;">
+                            <div class="name">Chicken Biryani</div>
+                            <div class="price">Rs. 180</div>
+                        </div>
+                    </div>
+                    <div class="food-card-hero" style="padding:0;overflow:hidden;">
+                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=100&fit=crop" style="width:100%;height:90px;object-fit:cover;" alt="Burger"/>
+                        <div style="padding:10px 12px;">
+                            <div class="name">Zinger Burger</div>
+                            <div class="price">Rs. 170</div>
+                        </div>
+                    </div>
+                    <div class="food-card-hero" style="padding:0;overflow:hidden;">
+                        <img src="https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=200&h=100&fit=crop" style="width:100%;height:90px;object-fit:cover;" alt="Juice"/>
+                        <div style="padding:10px 12px;">
+                            <div class="name">Fresh Juice</div>
+                            <div class="price">Rs. 80</div>
+                        </div>
+                    </div>
+                    <div class="food-card-hero" style="padding:0;overflow:hidden;">
+                        <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200&h=100&fit=crop" style="width:100%;height:90px;object-fit:cover;" alt="Sandwich"/>
+                        <div style="padding:10px 12px;">
+                            <div class="name">Club Sandwich</div>
+                            <div class="price">Rs. 180</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+    <div class="container">
+        <h2>Why Use the Pre-Order System?</h2>
+        <p class="subtitle">Designed to solve real problems faced by NUML students every day</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#FEF3EE; color:#E8521A;">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <h3>Save Time</h3>
+                    <p>Pre-order during class time and skip queues entirely. Your food will be ready when you arrive at the canteen.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#EEF4FF; color:#3498DB;">
+                        <i class="fa fa-mobile-alt"></i>
+                    </div>
+                    <h3>Easy Ordering</h3>
+                    <p>Browse the full menu, add items to cart, choose your pickup time — all from your browser, on any device.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:#EDFBF4; color:#2ECC71;">
+                        <i class="fa fa-ticket-alt"></i>
+                    </div>
+                    <h3>Token System</h3>
+                    <p>Get a unique token for every order. Show it at the counter to collect your food — no confusion, no mix-ups.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+    <div class="container">
+        <h2>How It Works</h2>
+        <p class="subtitle">Order your meal in 4 simple steps</p>
+        <div class="row justify-content-center">
+            <div class="col-6 col-md-3 step-card">
+                <div class="step-num">1</div>
+                <h4>Register</h4>
+                <p>Create your student account with your email and password</p>
+                <span class="step-arrow d-none d-md-block"><i class="fa fa-arrow-right"></i></span>
+            </div>
+            <div class="col-6 col-md-3 step-card">
+                <div class="step-num">2</div>
+                <h4>Browse Menu</h4>
+                <p>Explore categories and add your favorite items to cart</p>
+                <span class="step-arrow d-none d-md-block"><i class="fa fa-arrow-right"></i></span>
+            </div>
+            <div class="col-6 col-md-3 step-card">
+                <div class="step-num">3</div>
+                <h4>Place Order</h4>
+                <p>Select pickup time and confirm. Get your token number instantly</p>
+                <span class="step-arrow d-none d-md-block"><i class="fa fa-arrow-right"></i></span>
+            </div>
+            <div class="col-6 col-md-3 step-card">
+                <div class="step-num">4</div>
+                <h4>Pick Up</h4>
+                <p>Come to canteen, show token, collect your food — zero wait!</p>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="@Url.Action("Register","Account")" class="btn-hero-primary" style="display:inline-flex;">
+                <i class="fa fa-rocket"></i> Start Ordering Now
+            </a>
+        </div>
+    </div>
+</section>

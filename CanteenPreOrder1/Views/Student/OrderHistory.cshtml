@@ -1,0 +1,138 @@
+@model List<CanteenPreOrder1.Models.Order>
+@{
+    ViewBag.Title = "My Orders";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .orders-hero { background:linear-gradient(135deg,#1A1A2E,#0F3460); padding:36px 0 28px; margin-bottom:32px; }
+    .orders-hero h1 { font-family:'Sora',sans-serif; color:white; font-size:2rem; font-weight:800; }
+    .orders-hero p { color:rgba(255,255,255,0.6); }
+
+    .order-card {
+        background:white; border-radius:18px; border:1px solid #E8E0D8;
+        overflow:hidden; margin-bottom:16px; transition:all 0.25s;
+    }
+    .order-card:hover { box-shadow:0 6px 24px rgba(0,0,0,0.08); transform:translateY(-2px); }
+
+    .order-card-header {
+        background:#F8F4F0; padding:16px 22px;
+        display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+        border-bottom:1px solid #E8E0D8;
+    }
+    .order-meta { font-size:0.82rem; color:#7F8C8D; }
+    .order-meta strong { color:#1A1A2E; font-size:0.92rem; }
+
+    .order-token {
+        font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:700;
+        color:#E8521A; background:#FEF3EE; padding:4px 12px; border-radius:20px;
+    }
+
+    .order-card-body { padding:16px 22px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+    .order-items-preview { color:#555; font-size:0.85rem; }
+    .order-amount { font-family:'Sora',sans-serif; font-size:1.2rem; font-weight:800; color:#E8521A; }
+
+    .btn-detail {
+        background:#1A1A2E; color:white; border:none; border-radius:8px;
+        padding:7px 16px; font-size:0.8rem; font-weight:600; cursor:pointer;
+        text-decoration:none; transition:all 0.2s;
+    }
+    .btn-detail:hover { background:#E8521A; color:white; }
+
+    .pickup-info { font-size:0.8rem; color:#7F8C8D; display:flex; align-items:center; gap:5px; }
+    .pickup-info i { color:#E8521A; }
+
+    .empty-orders { text-align:center; padding:60px 20px; }
+    .empty-orders i { font-size:5rem; color:#E8E0D8; display:block; margin-bottom:20px; }
+    .empty-orders h3 { color:#7F8C8D; margin-bottom:8px; }
+</style>
+
+<div class="orders-hero">
+    <div class="container">
+        <h1><i class="fa fa-receipt me-2" style="color:#F5A623;"></i> My Orders</h1>
+        <p>Track all your canteen orders here</p>
+    </div>
+</div>
+
+<div class="container">
+    @if (!Model.Any())
+    {
+        <div class="empty-orders">
+            <i class="fa fa-receipt"></i>
+            <h3>No orders yet</h3>
+            <p style="color:#AAA;font-size:0.88rem;">You haven't placed any orders. Go explore the menu!</p>
+            <a href="@Url.Action("Menu","Student")" class="btn-primary-custom text-decoration-none mt-2">
+                <i class="fa fa-utensils me-2"></i> Browse Menu
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                @foreach (var order in Model)
+                {
+                    string statusClass = "status-pending";
+                    string statusIcon = "fa-hourglass-half";
+                    if (order.Status == "Preparing") { statusClass = "status-preparing"; statusIcon = "fa-fire"; }
+                    else if (order.Status == "Ready") { statusClass = "status-ready"; statusIcon = "fa-check-circle"; }
+                    else if (order.Status == "Completed") { statusClass = "status-completed"; statusIcon = "fa-check-double"; }
+
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div>
+                                <div class="order-meta">
+                                    <strong>Order #@order.OrderID</strong>
+                                </div>
+                                <div class="order-meta">@order.OrderedAt.ToString("hh:mm tt &bull; dd MMM yyyy")</div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="order-token">@order.TokenNumber</span>
+                                <span class="status-badge @statusClass">
+                                    <i class="fa @statusIcon"></i> @order.Status
+                                </span>
+                            </div>
+                        </div>
+                        <div class="order-card-body">
+                            <div>
+                                <div class="order-items-preview">
+                                    <i class="fa fa-clock me-1" style="color:#E8521A;"></i>
+                                    Pickup: @(string.IsNullOrEmpty(order.PickupTime) ? "ASAP" : order.PickupTime)
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="order-amount">Rs. @order.TotalAmount.ToString("0")</div>
+                                <a href="@Url.Action("OrderDetail", new { id = order.OrderID })" class="btn-detail">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-4">
+                <div class="card-custom p-4">
+                    <h6 style="font-weight:700;margin-bottom:16px;">Order Status Guide</h6>
+                    <div class="d-flex flex-column gap-3">
+                        <div>
+                            <span class="status-badge status-pending"><i class="fa fa-hourglass-half"></i> Pending</span>
+                            <p style="font-size:0.8rem;color:#7F8C8D;margin-top:6px;margin-bottom:0;">Order received, waiting to be processed.</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-preparing"><i class="fa fa-fire"></i> Preparing</span>
+                            <p style="font-size:0.8rem;color:#7F8C8D;margin-top:6px;margin-bottom:0;">Your food is being freshly prepared.</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-ready"><i class="fa fa-check-circle"></i> Ready</span>
+                            <p style="font-size:0.8rem;color:#7F8C8D;margin-top:6px;margin-bottom:0;">Come to the counter and show your token!</p>
+                        </div>
+                        <div>
+                            <span class="status-badge status-completed"><i class="fa fa-check-double"></i> Completed</span>
+                            <p style="font-size:0.8rem;color:#7F8C8D;margin-top:6px;margin-bottom:0;">Order collected. Enjoy your meal!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

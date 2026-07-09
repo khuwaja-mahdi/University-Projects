@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = "Error";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container" style="padding: 60px 0; text-align: center;">
+    <div style="background:white; border-radius:20px; border:1px solid #E8E0D8; max-width:500px; margin:0 auto; padding:40px;">
+        <i class="fa fa-exclamation-triangle" style="font-size:4rem; color:#E8521A; display:block; margin-bottom:20px;"></i>
+        <h2 style="font-family:'Sora',sans-serif; font-weight:700; margin-bottom:10px;">Something went wrong</h2>
+        <p style="color:#7F8C8D; margin-bottom:24px;">An unexpected error occurred. Please try again.</p>
+        <a href="@Url.Action("Index","Home")"
+           style="background:linear-gradient(135deg,#E8521A,#C43E0C); color:white; padding:12px 28px; border-radius:10px; text-decoration:none; font-weight:700;">
+            <i class="fa fa-home me-2"></i> Go Home
+        </a>
+    </div>
+</div>
